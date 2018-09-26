@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="60mm"
+   height="60mm"
+   viewBox="0 0 60 60.000001"
+   version="1.1"
+   id="svg3763"
+   inkscape:version="0.92.3 (d244b95, 2018-08-02)"
+   sodipodi:docname="pupil.svg">
+  <defs
+     id="defs3757" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="426.60116"
+     inkscape:cy="21.012062"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     height="73mm"
+     inkscape:window-width="1319"
+     inkscape:window-height="744"
+     inkscape:window-x="47"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata3760">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Capa 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-237)">
+    <path
+       inkscape:connector-curvature="0"
+       id="path4"
+       d="M 29.99911,237.00007 C 13.43117,237.00007 0,250.43035 0,267.00038 c 0,9.31628 4.24822,17.64184 10.91198,23.14466 -0.12498,-0.71574 -0.1,-1.43148 0.10728,-2.12103 1.0584,-3.57019 6.38879,-5.13581 11.9082,-3.49763 5.51755,1.63574 9.1317,5.85762 8.07089,9.42844 -0.37923,1.27846 -1.31142,2.29417 -2.59783,3.00258 0.52857,0.0275 1.06204,0.0426 1.59795,0.0426 16.57038,0 30.00154,-13.43148 30.00154,-29.99848 C 60.00062,250.43149 46.56947,237 29.99909,237 Z m 17.96105,16.90475 c -1.06083,3.57019 -6.39244,5.13643 -11.90941,3.49948 -5.51879,-1.63818 -9.13233,-5.85947 -8.0721,-9.42966 1.0596,-3.57082 6.39121,-5.13762 11.9094,-3.50008 5.51757,1.63878 9.13111,5.85948 8.07211,9.43026 z"
+       style="stroke-width:0.60966939" />
+  </g>
+</svg>

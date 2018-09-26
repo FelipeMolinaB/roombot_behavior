@@ -15,8 +15,10 @@ class RobotGUI(QtCore.QObject):#object):
         #confirmation_done_topic = rospy.get_param("confirmation_done_topic", "confirmation_done")
         confirm_load_service = rospy.get_param("confirm_load_service", "confirm_load")
         guest_confirm_service = rospy.get_param("guest_confirm_service", "guest_confirm")
-        eyes_ui_path = rospy.get_param("eyes_ui_path", "/home/roombot/ros_workspaces/behavior_ws/src/roombot_gui/scripts/eyes2.py")
-        self.confirmation_ui_path = rospy.get_param("confirmation_ui_path","/home/roombot/ros_workspaces/behavior_ws/src/roombot_gui/scripts/confirm.py")
+        """eyes_ui_path = rospy.get_param("eyes_ui_path", "/home/roombot/ros_workspaces/behavior_ws/src/roombot_gui/scripts/eyes3.py")
+        self.confirmation_ui_path = rospy.get_param("confirmation_ui_path","/home/roombot/ros_workspaces/behavior_ws/src/roombot_gui/scripts/confirm.py")"""
+        eyes_ui_path = rospy.get_param("eyes_ui_path", "/home/innovacion/roombot_ws/src/roombot_gui/scripts/eyes3.py")
+        self.confirmation_ui_path = rospy.get_param("confirmation_ui_path","/home/innovacion/roombot_ws/src/roombot_gui/scripts/confirm.py")
         #"""Subscribers"""
         #rospy.Subscriber("confirmation_done_topic", Bool, self.callback_confirmation_done)
         """Services"""
