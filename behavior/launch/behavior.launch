@@ -1,0 +1,8 @@
+<launch>
+    <node pkg="behavior" type="behavior_actions.py" name="behavior_actions" output="screen" ></node>
+    <node pkg="behavior" type="behavior_controller.py" name="behavior_controller" output="screen" ></node>
+    <node pkg="behavior" type="data_base.py" name="data_base" output="screen">
+        <param name="r_nw_data_base" value="False" type="bool"/>
+    </node>
+    <node pkg="behavior" type="new_mission.py" name="new_mission" output="screen" ></node>
+</launch>

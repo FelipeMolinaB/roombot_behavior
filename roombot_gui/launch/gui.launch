@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="roombot_gui" type="gui.py" name="gui" output="screen" ></node>
+</launch>
+    

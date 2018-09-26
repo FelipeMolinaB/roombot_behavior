@@ -1,0 +1,5 @@
+bool    start
+---
+bool    end
+---
+sensor_msgs/BatteryState    battery_status

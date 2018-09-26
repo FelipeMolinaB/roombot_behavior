@@ -1,0 +1,6 @@
+uint16      request_id
+string[]    request
+---
+uint16  id
+---
+string confirmation_msg

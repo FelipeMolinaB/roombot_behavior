@@ -1,0 +1,3 @@
+behavior/RequestMsg request
+---
+bool        confirmation              #Is the request being processed?

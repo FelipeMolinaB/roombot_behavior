@@ -1,0 +1,5 @@
+behavior/RequestMsg[] requests
+---
+uint16[]    ids
+---
+string  confirmation_msg

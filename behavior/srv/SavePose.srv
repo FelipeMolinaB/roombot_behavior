@@ -1,0 +1,5 @@
+string	                          pose_name
+geometry_msgs/PoseWithCovariance  pose
+---
+bool	                            error
+string          	                description

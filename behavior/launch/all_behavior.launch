@@ -1,0 +1,4 @@
+<launch>
+    <include file="$(find roombot_gui)/launch/gui.launch"/>
+    <include file="$(find behavior)/launch/behavior.launch"/>
+</launch>
