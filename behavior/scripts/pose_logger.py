@@ -7,14 +7,13 @@ from behavior.srv import SavePose
 class PoseLogger(object):
 	def __init__(self):
 		"""Parameters Inicialization """
-		save_request_service = rospy.get_param("save_request_service","save_request")   #Topic for the status of the Roombot behavior
-		pose_update_topic = rospy.get_param("pose_update_topic","/roombot/poseupdate")   #Topic for the status of the Roombot behavior
+		save_request_service = rospy.get_param("~save_request_service","save_request")   #Topic for the status of the Roombot behavior
+		pose_update_topic = rospy.get_param("~pose_update_topic","/roombot/poseupdate")   #Topic for the status of the Roombot behavior
 		"""Service"""
 		self.save_pose = rospy.ServiceProxy(save_request_service,SavePose)
 		"""Subscriber"""
 		self.sub_pose_update = rospy.Subscriber(pose_update_topic,PoseWithCovarianceStamped,self.callback_pose_update)
 		"""Node Configuration"""
-		rospy.init_node("pose_logger", anonymous = True)
 		self.get_pose = False
 		self.current_pose = PoseWithCovariance()
 		rospy.wait_for_service(save_request_service)
@@ -44,6 +43,7 @@ class PoseLogger(object):
 				break
 
 if __name__ == '__main__':
+	rospy.init_node("pose_logger", anonymous = True)
 	try:
 		PoseLogger = PoseLogger()
 	except rospy.ROSInterruptException:

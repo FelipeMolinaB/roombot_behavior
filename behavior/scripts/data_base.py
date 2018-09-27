@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import rospy
 import pandas as pd
+from rospkg import RosPack
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import String,Bool,UInt8
 from behavior.srv import SavePose,GetPose,GetButton
@@ -9,28 +10,24 @@ from behavior.srv import SavePoseResponse,GetButtonResponse,GetPoseResponse
 class DataBase(object):
 	def __init__(self):
 		"""Parameters Inicialization """
-		self.poses_path = rospy.get_param("~poses_db_path","/home/roombot/ros_workspaces/behavior_ws/src/behavior/include/poses.csv")     #Pose Data Base path
-		self.buttons_path = rospy.get_param("~buttons_db_path","/home/roombot/ros_workspaces/behavior_ws/src/behavior/include/buttons.csv")   #Buttons Data Base path
-		r_nw_data_base = rospy.get_param("~r_nw_data_base",True)   #Topic for the status of the Roombot behavior
+		self.poses_path = rospy.get_param("~poses_db_path",RosPack().get_path("behavior")+"/include/poses.csv")     #Pose Data Base path
+		self.buttons_path = rospy.get_param("~buttons_db_path",RosPack().get_path("behavior")+"/include/buttons.csv")   #Buttons Data Base path
+		r_nw_db = rospy.get_param("~r_nw_db",True)   #Topic for the status of the Roombot behavior
 		save_request_service = rospy.get_param("~save_request_service","save_request")   #Topic for the status of the Roombot behavior
 		pose_request_service = rospy.get_param("~pose_request_service","pose_request")   #Topic for the status of the Roombot behavior
 		button_request_service = rospy.get_param("~button_request_service","button_request")   #Topic for the status of the Roombot behavior
 		self.pose_frame_id = rospy.get_param("~pose_frame_id","map")
 		"""Services"""
-		if not r_nw_data_base:
+		if not r_nw_db:
 			self.srv_save_request =	rospy.Service(save_request_service,SavePose,self.callback_save_request)
+			rospy.loginfo("Data Bases in write mode")
 		else:
 			self.srv_pose_request =	rospy.Service(pose_request_service,GetPose,self.callback_pose_request)
 			self.srv_button_request = rospy.Service(button_request_service,GetButton,self.callback_button_request)
+			rospy.loginfo("Data Bases in read mode")
 		"""Node Configuration"""
 		self.poses_db = pd.read_csv(self.poses_path,index_col = False)
 		self.buttons_db = pd.read_csv(self.buttons_path,dtype={"Nombres":str,"Boton":str},index_col = False)
-		if r_nw_data_base:
-			rospy.init_node("data_base", anonymous = True)
-			rospy.loginfo("Data Bases in read mode")
-		else:
-			rospy.init_node("feed_poses_db", anonymous = True)
-			rospy.loginfo("Data Bases in read/write mode")
 		rospy.spin()
 
 	"""Services Callbacks"""
@@ -86,6 +83,7 @@ class DataBase(object):
 		return GetButtonResponse(button)
 
 if __name__ == '__main__':
+	rospy.init_node("data_base", anonymous = True)
 	try:
 		DataBase = DataBase()
 	except rospy.ROSInterruptException:

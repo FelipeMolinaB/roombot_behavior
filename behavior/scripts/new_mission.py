@@ -26,7 +26,6 @@ class RoombotBehavior(object):
 		self.pub_target_floor = rospy.Publisher(target_floor_topic,UInt8, queue_size = 10)
 		self.pub_battery_status = rospy.Publisher(battery_status_topic,BatteryState,queue_size = 10)
 		"""Node Configuration"""
-		rospy.init_node("Roombot_behavior", anonymous = True)
 		self.rate = rospy.Rate(rate)
 		self.current_floor = rospy.get_param("~current_floor", 3)
 		self.target_floor = 3
@@ -65,6 +64,7 @@ class RoombotBehavior(object):
 			self.rate.sleep()
 
 if __name__ == '__main__':
+	rospy.init_node("Roombot_behavior", anonymous = True)
 	try:
 		Roombotbehavior = RoombotBehavior()
 	except rospy.ROSInterruptException:

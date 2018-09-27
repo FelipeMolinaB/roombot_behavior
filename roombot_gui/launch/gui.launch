@@ -1,4 +1,12 @@
 <launch>
-    <node pkg="roombot_gui" type="gui.py" name="gui" output="screen" ></node>
+    <arg name="detected_person_topic_name" default="/detected_person_zone"/>
+
+    <node pkg="roombot_gui" type="eyes2.py" name="eyes_gui" output="screen" >
+        <param name="~detected_person_topic" value="$(arg detected_person_topic_name)" type="str"/>
+        <param name="~eyes_path" value="$(find roombot_gui)/ui/img/w_eyes2.svg" type="str"/>
+        <param name="~close_eyes_path" value="$(find roombot_gui)/ui/img/b_eyes2.svg" type="str"/>
+        <param name="~pupil_path" value="$(find roombot_gui)/ui/img/pupil2.svg" type="str"/>
+        <param name="~blink_duration" value="0.15" type="double"/>
+        <param name="~blink_period" value="5.0" type="double"/>
+    </node>
 </launch>
-    

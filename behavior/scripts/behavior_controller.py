@@ -36,14 +36,12 @@ class BehaviorController(object):
         battery_status_topic = rospy.get_param("~battery_status_topic","/battery_status")                #Topic for monitoring the roombot's battery status
         current_floor_topic = rospy.get_param("~current_floor_topic","/current_floor")                   #Topic that advertise the current floor
         behevior_substatus_topic = rospy.get_param("~behevior_substatus_topic","/behevior_substatus")    #Topic that advertise the behavior substatus
-        #requests_status_topic = rospy.get_param("~requests_status_topic","/requests_status")             #
+        #requests_status_topic = rospy.get_param("~requests_status_topic","/requests_status")             ## WARNING: Please Check
         #Publishers Parameters
         behavior_status_topic = rospy.get_param("~behavior_status_topic","/behevior_status")             #Topic that advertise the behavior status
         #Other parameters
         self.floors = rospy.get_param("~floors", [1,3])                                                  #List of the floors available
         self.floors.sort()
-
-        rospy.init_node("behavior_controller", anonymous = True)
         """Actions"""
         self.act_state1 = actionlib.SimpleActionClient(state1_action,State1Action)
         self.act_state2 = actionlib.SimpleActionClient(state2_action,State2Action)
@@ -305,6 +303,7 @@ class BehaviorController(object):
                 self.status = 1
 
 if __name__ == '__main__':
+    rospy.init_node("behavior_controller", anonymous = True)
     try:
         BehaviorController = BehaviorController()
     except rospy.ROSInterruptException:

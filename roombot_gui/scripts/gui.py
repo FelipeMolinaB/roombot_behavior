@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import rospy
+from rospkg import RosPack
 from std_msgs.msg import Bool
 from behavior.srv import ConfirmLoad,GuestConfirm
 from behavior.srv import ConfirmLoadResponse,GuestConfirmResponse
@@ -10,17 +11,11 @@ from PyQt5 import QtCore
 class RobotGUI(QtCore.QObject):#object):
     def __init__(self):
         super(RobotGUI,self).__init__(None)
-        rospy.init_node("gui", anonymous = True,disable_signals=True)
         """Parameters Inicialization """
-        #confirmation_done_topic = rospy.get_param("confirmation_done_topic", "confirmation_done")
-        confirm_load_service = rospy.get_param("confirm_load_service", "confirm_load")
-        guest_confirm_service = rospy.get_param("guest_confirm_service", "guest_confirm")
-        """eyes_ui_path = rospy.get_param("eyes_ui_path", "/home/roombot/ros_workspaces/behavior_ws/src/roombot_gui/scripts/eyes3.py")
-        self.confirmation_ui_path = rospy.get_param("confirmation_ui_path","/home/roombot/ros_workspaces/behavior_ws/src/roombot_gui/scripts/confirm.py")"""
-        eyes_ui_path = rospy.get_param("eyes_ui_path", "/home/innovacion/roombot_ws/src/roombot_gui/scripts/eyes3.py")
-        self.confirmation_ui_path = rospy.get_param("confirmation_ui_path","/home/innovacion/roombot_ws/src/roombot_gui/scripts/confirm.py")
-        #"""Subscribers"""
-        #rospy.Subscriber("confirmation_done_topic", Bool, self.callback_confirmation_done)
+        confirm_load_service = rospy.get_param("~confirm_load_service", "confirm_load")
+        guest_confirm_service = rospy.get_param("~guest_confirm_service", "guest_confirm")
+        eyes_ui_path = rospy.get_param("~eyes_ui_path", RosPack().get_path("roombot_gui")+"/scripts/eyes3.py")
+        self.confirmation_ui_path = rospy.get_param("~confirmation_ui_path",RosPack().get_path("roombot_gui")+"/scripts/confirm.py")
         """Services"""
         self.srv_confirm_load = rospy.Service(confirm_load_service,ConfirmLoad,self.callback_confirm_load)
         self.srv_guest_confirm = rospy.Service(guest_confirm_service,GuestConfirm,self.callback_guest_confirm)
@@ -51,6 +46,7 @@ class RobotGUI(QtCore.QObject):#object):
         self.confirm.terminate()
 
 if __name__ == '__main__':
+    rospy.init_node("gui_node", anonymous = True,disable_signals=True)
     try:
         RobotGUI = RobotGUI()
     except rospy.ROSInterruptException:

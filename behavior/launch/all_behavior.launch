@@ -1,4 +1,11 @@
 <launch>
-    <include file="$(find roombot_gui)/launch/gui.launch"/>
-    <include file="$(find behavior)/launch/behavior.launch"/>
+    <arg name="setup_mode" default="false"/>
+
+    <include file="$(find behavior)/launch/behavior.launch">
+        <arg name="feed_db" value="$(arg setup_mode)"/>
+    </include>
+
+    <group unless="$(arg setup_mode)">
+        <include file="$(find roombot_gui)/launch/gui.launch"/>
+    </group>
 </launch>

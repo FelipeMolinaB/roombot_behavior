@@ -45,8 +45,7 @@ class BehaviorActions(object):
         behevior_substatus_topic = rospy.get_param("~behevior_substatus_topic","/behevior_substatus")
         target_floor_topic = rospy.get_param("~target_floor_topic","/target_floor")#Roombot's target_floor_topic
         #Node Parameters
-        rate = rospy.get_param("~rate",10)
-        rospy.init_node("Roombot_behavior", anonymous = True)                                                         #behavior rate
+        rate = rospy.get_param("~rate",10)                                                      #behavior rate
         """Actions"""
         self.act_state1 = actionlib.SimpleActionServer(state1_action,State1Action,self.callback_satate1,False)
         self.act_state2 = actionlib.SimpleActionServer(state2_action,State2Action,self.callback_satate2,False)
@@ -382,4 +381,5 @@ class BehaviorActions(object):
             rospy.logerr("Substautus error: substatus %d is invalid",self.substatus)
 
 if __name__ == '__main__':
+    rospy.init_node("Roombot_behavior", anonymous = True)
     BehaviorActions = BehaviorActions()

@@ -1,8 +1,112 @@
 <launch>
-    <node pkg="behavior" type="behavior_actions.py" name="behavior_actions" output="screen" ></node>
-    <node pkg="behavior" type="behavior_controller.py" name="behavior_controller" output="screen" ></node>
-    <node pkg="behavior" type="data_base.py" name="data_base" output="screen">
-        <param name="r_nw_data_base" value="False" type="bool"/>
-    </node>
-    <node pkg="behavior" type="new_mission.py" name="new_mission" output="screen" ></node>
+    <!-- Behavior's Action names -->
+    <arg name="state1_name" value="state1"/>
+    <arg name="state2_name" value="state2"/>
+    <arg name="state3_name" value="state3"/>
+    <arg name="state4_name" value="state4"/>
+    <arg name="state5_name" value="state5"/>
+    <arg name="state7_name" value="state7"/>
+    <!-- Services names -->
+    <arg name="confirm_load_service_name" value="confirm_load"/>
+    <arg name="guest_confirm_service_name" value="guest_confirm"/>
+    <arg name="room_pose_service_name" value="pose_request"/>
+    <arg name="button_code_service_name" value="button_request"/>
+    <arg name="save_pose_service_name" value="save_request"/>
+    <arg name="request_service_name" value="incoming_request"/>
+    <!-- Topic names -->
+    <arg name="battery_status_topic_name" value="/battery_status"/>
+    <arg name="current_floor_topic_name" value="/current_floor"/>
+    <arg name="target_floor_topic_name" value="/target_floor"/>
+    <arg name="behevior_substatus_topic_name" value="/behevior_substatus"/>
+    <arg name="press_button_cmplt_topic_name" value="/press_button_complete"/>
+    <!-- Other Args -->
+    <arg name="floors_list" default="[1,3]"/>
+    <arg name="feed_db" default="false"/>
+
+    <group unless="$(arg feed_db)">
+        <node pkg="behavior" type="behavior_actions.py" name="behavior_actions" output="screen">
+            <!-- Behavior's Action names -->
+            <param name="~state1_action" value="$(arg state1_name)" type="str"/>
+            <param name="~state2_action" value="$(arg state2_name)" type="str"/>
+            <param name="~state3_action" value="$(arg state3_name)" type="str"/>
+            <param name="~state4_action" value="$(arg state4_name)" type="str"/>
+            <param name="~state5_action" value="$(arg state5_name)" type="str"/>
+            <param name="~state7_action" value="$(arg state7_name)" type="str"/>
+            <!-- Services names -->
+            <param name="~confirm_load_service" value="$(arg confirm_load_service_name)" type="str"/>
+            <param name="~guest_confirm_service" value="$(arg guest_confirm_service_name)" type="str"/>
+            <param name="~get_pose_service" value="$(arg room_pose_service_name)" type="str"/>
+            <param name="~get_button_service" value="$(arg button_code_service_name)" type="str"/>
+            <!-- Subscribers topics names -->
+            <param name="~orientation_adj_topic" value="/orientation_adjust" type="str"/>
+            <param name="~press_button_cmplt_topic" value="$(arg press_button_cmplt_topic_name)" type="str"/>
+            <param name="~battery_status_topic" value="$(arg battery_status_topic_name)" type="str"/>
+            <param name="~current_floor_topic" value="$(arg current_floor_topic_name)" type="str"/>
+            <param name="~goal_status_topic" value="/roombot/move_base/status" type="str"/>
+            <!-- Publishers topics names -->
+            <param name="~target_button_topic" value="/target_button" type="str"/>
+            <param name="~goal_pose_topic" value="/roombot/move_base_simple/goal" type="str"/>
+            <param name="~behevior_substatus_topic" value="$(arg behevior_substatus_topic_name)" type="str"/>
+            <param name="~target_floor_topic" value="$(arg target_floor_topic_name)" type="str"/>
+            <!-- Node parameters -->
+            <param name="~rate" value="10" type="int"/>
+        </node>
+
+        <node pkg="behavior" type="behavior_controller.py" name="behavior_controller" output="screen">
+            <!-- Behavior's Action names -->
+            <param name="~state1_action" value="$(arg state1_name)" type="str"/>
+            <param name="~state2_action" value="$(arg state2_name)" type="str"/>
+            <param name="~state3_action" value="$(arg state3_name)" type="str"/>
+            <param name="~state4_action" value="$(arg state4_name)" type="str"/>
+            <param name="~state5_action" value="$(arg state5_name)" type="str"/>
+            <param name="~state7_action" value="$(arg state7_name)" type="str"/>
+            <!-- Service names -->
+            <param name="~request_service" value="$(arg request_service_name)" type="str"/>
+            <!-- Subscribers topics names -->
+            <param name="~battery_status_topic" value="$(arg battery_status_topic_name)" type="str"/>
+            <param name="~current_floor_topic" value="$(arg current_floor_topic_name)" type="str"/>
+            <param name="~behevior_substatus_topic" value="$(arg behevior_substatus_topic_name)" type="str"/>
+            <!-- Publishers topics names -->
+            <param name="~behavior_status_topic" value="/behevior_status" type="str"/>
+            <param name="~requests_status_topic" value="/requests_status" type="str"/>
+            <!-- Node parameters -->
+            <rosparam param="floors">$(arg floors_list)</rosparam>
+        </node>
+
+        <node pkg="behavior" type="data_base.py" name="data_base" output="screen">
+            <param name="~poses_db_path" value="$(find behavior)/include/poses.csv" type="str"/>
+            <param name="~buttons_db_path" value="$(find behavior)/include/buttons.csv" type="str"/>
+            <param name="~r_nw_db" value="true" type="bool"/>
+            <param name="~pose_request_service" value="$(arg room_pose_service_name)" type="str"/>
+            <param name="~button_request_service" value="$(arg button_code_service_name)" type="str"/>
+            <param name="~pose_frame_id" value="map" type="str"/>
+        </node>
+
+        <node pkg="behavior" type="new_mission.py" name="new_mission" output="screen">
+            <!-- Service name -->
+            <param name="~request_service" value="$(arg request_service_name)" type="str"/>
+            <!-- Subscribers topics names -->
+            <param name="~press_button_cmplt_topic" value="$(arg press_button_cmplt_topic_name)" type="str"/>
+            <param name="~new_mission_topic" value="/new_mission" type="str"/>
+            <!-- Publishers topics names -->
+            <param name="~current_floor_topic" value="$(arg current_floor_topic_name)" type="str"/>
+            <param name="~target_floor_topic" value="$(arg target_floor_topic_name)" type="str"/>
+            <param name="~battery_status_topic" value="$(arg battery_status_topic_name)" type="str"/>
+            <!-- Node parameters -->
+            <param name="~rate" value="10" type="int"/>
+        </node>
+    </group>
+
+    <group if="$(arg feed_db)">
+        <node pkg="behavior" type="data_base.py" name="data_base" output="screen">
+            <param name="~poses_db_path" value="$(find behavior)/include/poses.csv" type="str"/>
+            <param name="~buttons_db_path" value="$(find behavior)/include/buttons.csv" type="str"/>
+            <param name="~r_nw_db" value="false" type="bool"/>
+            <param name="~save_request_service" value="$(arg save_pose_service_name)" type="str"/>
+        </node>
+        <node pkg="behavior" type="pose_logger.py" name="pose_logger" output="screen">
+            <param name="~save_request_service" value="$(arg save_pose_service_name)" type="str"/>
+            <param name="~pose_update_topic" value="/roombot/poseupdate" type="str"/>
+        </node>
+    </group>
 </launch>

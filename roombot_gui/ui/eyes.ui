@@ -50,10 +50,27 @@
      <string/>
     </property>
    </widget>
+   <widget class="QLabel" name="eyes">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>110</y>
+      <width>181</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
  </widget>
- <resources>
-  <include location="img/background_imgs.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
