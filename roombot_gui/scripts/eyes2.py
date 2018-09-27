@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import rospy
 from PyQt5 import QtCore, QtGui, QtWidgets
 from rospkg import RosPack
