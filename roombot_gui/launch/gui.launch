@@ -9,4 +9,10 @@
         <param name="~blink_duration" value="0.15" type="double"/>
         <param name="~blink_period" value="5.0" type="double"/>
     </node>
+
+    <node pkg="roombot_gui" type="confirmation_window.py" name="confirmation_window" output="screen" >
+        <param name="~confirm_load_service" value="confirm_load" type="str"/>
+        <param name="~guest_confirm_service" value="guest_confirm" type="str"/>
+        <param name="~view_rows" value="5.0" type="double"/>
+    </node>
 </launch>

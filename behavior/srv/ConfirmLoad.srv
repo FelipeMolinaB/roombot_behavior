@@ -1,3 +1,4 @@
 string[] request
+bool    was_the_last
 ---
 bool    confirmation

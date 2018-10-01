@@ -2,11 +2,9 @@
 import rospy
 from PyQt5 import QtCore, QtGui, QtWidgets
 from rospkg import RosPack
-from PyQt5 import QtCore, QtGui, QtWidgets
 from pyautogui import size
 from time import sleep
 from std_msgs.msg import Float32
-
 
 class UiEyes(object):
     def __init__(self):

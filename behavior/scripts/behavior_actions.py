@@ -169,10 +169,18 @@ class BehaviorActions(object):
     def callback_satate3(self,goal):
         ## # WARNING: the action difiition has changed
         ids = []
+        posible_requests = 0
         for request in goal.requests:
             if request.type == request.DELIVERY:
+                posible_requests += 1
+
+        counter = 0
+        for request in goal.requests:
+            if request.type == request.DELIVERY:
+                counter += 1
+                was_the_last = counter == posible_requests
                 print("Before")
-                confirmation = self.confirm_load(request.request).confirmation
+                confirmation = self.confirm_load(request.request,was_the_last).confirmation
                 print("Confirmation",confirmation)
                 if confirmation:
                     ids.append(request.request_id)
