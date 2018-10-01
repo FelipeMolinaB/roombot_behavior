@@ -37,7 +37,7 @@ class UiConfirmation(QtCore.QObject):
         self.request_info.setAlternatingRowColors(True)
         self.request_info.setObjectName("request_info")
         font = QtGui.QFont()
-        font.setPointSize(20)
+        font.setPointSize(size()[1]*0.027)
         self.request_info.setFont(font)
         self.table_container = (self.request_info.geometry().width(),self.request_info.geometry().height())
         self.request_info.itemClicked.connect(self.handleItemClicked)
@@ -72,7 +72,7 @@ class UiConfirmation(QtCore.QObject):
         self.verticalLayout.addWidget(self.groupBox_2)
         self.confirm = QtWidgets.QPushButton(self.verticalLayoutWidget)
         font = QtGui.QFont()
-        font.setPointSize(16)
+        font.setPointSize(size()[1]*0.04)
         self.confirm.setFont(font)
         self.confirm.setEnabled(False)
         self.confirm.clicked.connect(self.confirmation_done)
@@ -101,7 +101,6 @@ class UiConfirmation(QtCore.QObject):
         self.confirmation = True
 
     def callback_confirm_load(self,msg):
-        self.confirm.setEnabled(False)
         self.request.emit((0,msg.request))
         while not self.confirmation:
             sleep(0.1)
@@ -115,7 +114,6 @@ class UiConfirmation(QtCore.QObject):
         return ConfirmLoadResponse(True)
 
     def callback_guest_confirm(self,msg):
-        self.confirm.setEnabled(True)
         self.request.emit((1,msg.request))
         while not self.confirmation:
             sleep(0.1)
@@ -128,6 +126,7 @@ class UiConfirmation(QtCore.QObject):
         source = request[0]
         request = request[1]
         if source == 0:
+            self.confirm.setEnabled(False)
             self.request_info.setColumnCount(3)
             self.request_info.setRowCount(len(request))
             self.request_info.setHorizontalHeaderLabels(['OK', 'Producto', 'Cantidad'])
@@ -144,6 +143,7 @@ class UiConfirmation(QtCore.QObject):
             self.all_check = [False]*self.request_info.rowCount()
             initial_col = 1
         else:
+            self.confirm.setEnabled(True)
             self.request_info.setColumnCount(2)
             self.request_info.setRowCount(len(request))
             self.request_info.setHorizontalHeaderLabels(['Producto', 'Cantidad'])
