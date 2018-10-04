@@ -344,7 +344,7 @@ class BehaviorActions(object):
                     button_name = "up"
                     button.data = self.get_button_code(button_name)
                 rospy.loginfo("Waiting the elevator")
-                self.substatus = 5 #3 WARNING: Changed for trials
+                self.substatus = 4 #3 WARNING: Changed for trials
             elif self.prev_substatus == 2:
                 button_name = str(target_floor)
                 button.data = self.get_button_code(target_floor)
@@ -363,7 +363,10 @@ class BehaviorActions(object):
                 self.substatus = 4
         elif self.substatus == 4:
             #Going to the inner panel
-            goal_pose = self.get_pose('e'+self.current_floor+"ipanel").pose
+            if self.target_floor%2 == 0:
+                goal_pose = self.get_pose('e'+self.current_floor+"ipanel_even").pose
+            else:
+                goal_pose = self.get_pose('e'+self.current_floor+"ipanel_odd").pose
             self.pub_goal_pose.publish(goal_pose)
             if self.wait():
                 if self.goal_status == self.SUCCEED:

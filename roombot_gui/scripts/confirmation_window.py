@@ -11,7 +11,7 @@ class UiConfirmation(QtCore.QObject):
     request = QtCore.pyqtSignal(tuple)
 
     def __init__(self):
-        super(UiConfirmation,self).__init__()
+        super(UiConfirmation,self).__init__(parent = None)
         """Parameters Inicialization """
         confirm_load_service = rospy.get_param("~confirm_load_service", "confirm_load")
         guest_confirm_service = rospy.get_param("~guest_confirm_service", "guest_confirm")
@@ -24,7 +24,9 @@ class UiConfirmation(QtCore.QObject):
         self.setupUi()
         self.request.connect(self.setup_table)
         self.confirmation = False
-        self.MainWindow.show()
+        self.source = 0
+        rospy.loginfo("Confirmation Window OK")
+        #self.MainWindow.show()
 
     def setupUi(self):
         self.MainWindow.setObjectName("MainWindow")
@@ -54,7 +56,7 @@ class UiConfirmation(QtCore.QObject):
         self.groupBox.setFont(font)
         self.groupBox.setObjectName("groupBox")
         self.room = QtWidgets.QLabel(self.groupBox)
-        self.room.setGeometry(QtCore.QRect(0,container[1]*0.33,container[0]*0.96,container[1]*0.34))
+        self.room.setGeometry(QtCore.QRect(0,container[1]*0.33,container[0]*0.94,container[1]*0.34))
         self.room.setFrameShape(QtWidgets.QFrame.Box)
         self.room.setText("Algo")
         self.room.setAlignment(QtCore.Qt.AlignCenter)
@@ -64,7 +66,7 @@ class UiConfirmation(QtCore.QObject):
         self.groupBox_2.setFont(font)
         self.groupBox_2.setObjectName("groupBox_2")
         self.guest_name = QtWidgets.QLabel(self.groupBox_2)
-        self.guest_name.setGeometry(QtCore.QRect(0,container[1]*0.33,container[0]*0.96,container[1]*0.34))
+        self.guest_name.setGeometry(QtCore.QRect(0,container[1]*0.33,container[0]*0.94,container[1]*0.34))
         self.guest_name.setFrameShape(QtWidgets.QFrame.Box)
         self.guest_name.setText("")
         self.guest_name.setAlignment(QtCore.Qt.AlignCenter)
@@ -91,16 +93,20 @@ class UiConfirmation(QtCore.QObject):
         self.confirm.setText(_translate("MainWindow", "OK"))
 
     def handleItemClicked(self,item):
-        self.all_check[item.row()] = item.checkState()==QtCore.Qt.Checked
-        if self.all_check == [True]*self.request_info.rowCount():
-            self.confirm.setEnabled(True)
+        if self.source == 0:
+            self.all_check[item.row()] = item.checkState()==QtCore.Qt.Checked
+            if self.all_check == [True]*self.request_info.rowCount():
+                self.confirm.setEnabled(True)
+            else:
+                self.confirm.setEnabled(False)
         else:
-            self.confirm.setEnabled(False)
+            self.confirm.setEnabled(True)
 
     def confirmation_done(self):
         self.confirmation = True
 
     def callback_confirm_load(self,msg):
+        self.source = 0
         self.request.emit((0,msg.request))
         while not self.confirmation:
             sleep(0.1)
@@ -114,6 +120,7 @@ class UiConfirmation(QtCore.QObject):
         return ConfirmLoadResponse(True)
 
     def callback_guest_confirm(self,msg):
+        self.source = 1
         self.request.emit((1,msg.request))
         while not self.confirmation:
             sleep(0.1)
@@ -130,7 +137,7 @@ class UiConfirmation(QtCore.QObject):
             self.request_info.setColumnCount(3)
             self.request_info.setRowCount(len(request))
             self.request_info.setHorizontalHeaderLabels(['OK', 'Producto', 'Cantidad'])
-            self.request_info.setColumnWidth(0,self.table_container[0]*0.05)
+            self.request_info.setColumnWidth(0,self.table_container[0]*0.07)
             self.request_info.setColumnWidth(1,self.table_container[0]*0.7)
             self.request_info.setColumnWidth(2,self.table_container[0]*0.20)
             for i in range(self.request_info.rowCount()):
@@ -147,7 +154,7 @@ class UiConfirmation(QtCore.QObject):
             self.request_info.setColumnCount(2)
             self.request_info.setRowCount(len(request))
             self.request_info.setHorizontalHeaderLabels(['Producto', 'Cantidad'])
-            self.request_info.setColumnWidth(0,self.table_container[0]*0.8)
+            self.request_info.setColumnWidth(0,self.table_container[0]*0.77)
             self.request_info.setColumnWidth(1,self.table_container[0]*0.2)
             for i in range(self.request_info.rowCount()):
                 self.request_info.setRowHeight(i,self.table_container[0]*(1/self.view_rows))
@@ -162,11 +169,6 @@ class UiConfirmation(QtCore.QObject):
             item.setTextAlignment(QtCore.Qt.AlignCenter)
             self.request_info.setItem(i,initial_col+1,item)
         self.MainWindow.show()
-
-
-    def close(self):
-        self.MainWindow.close()
-
 
 if __name__ == "__main__":
     rospy.init_node("confirmation_window", anonymous = True)
