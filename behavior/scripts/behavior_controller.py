@@ -40,7 +40,7 @@ class BehaviorController(object):
         #Publishers Parameters
         behavior_status_topic = rospy.get_param("~behavior_status_topic","/behevior_status")             #Topic that advertise the behavior status
         #Other parameters
-        self.floors = rospy.get_param("~floors", [1,3])                                                  #List of the floors available
+        self.floors = rospy.get_param("~floors", list(range(8)))#[1,3])                                                  #List of the floors available
         self.floors.sort()
         """Actions"""
         self.act_state1 = actionlib.SimpleActionClient(state1_action,State1Action)
