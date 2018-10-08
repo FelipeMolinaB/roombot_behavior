@@ -1,4 +1,5 @@
 string room
+uint8 floor
 ---
 bool end
 ---

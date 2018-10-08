@@ -70,7 +70,7 @@
             <param name="~behavior_status_topic" value="/behevior_status" type="str"/>
             <param name="~requests_status_topic" value="/requests_status" type="str"/>
             <!-- Node parameters -->
-            <rosparam param="floors">$(arg floors_list)</rosparam>
+            <!--rosparam param="floors">$(arg floors_list)</rosparam-->
         </node>
 
         <node pkg="behavior" type="data_base.py" name="data_base" output="screen">

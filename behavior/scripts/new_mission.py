@@ -20,11 +20,11 @@ class RoombotBehavior(object):
 		"""Services"""
 		self.svr_request = rospy.ServiceProxy(request_service,Request)
 		"""Subscribers"""
-		self.sub_press_button_cmplt = rospy.Subscriber(press_button_cmplt_topic,Int8,self.callback_press_button_cmplt)		#Sensors Module
+		#self.sub_press_button_cmplt = rospy.Subscriber(press_button_cmplt_topic,Int8,self.callback_press_button_cmplt)		#Sensors Module
 		self.sub_new_mission = rospy.Subscriber(new_mission_topic,Int8,self.callback_new_mission)
 		"""Publishers"""
-		self.pub_current_floor = rospy.Publisher(current_floor_topic,UInt8,queue_size = 10)
-		self.pub_target_floor = rospy.Publisher(target_floor_topic,UInt8, queue_size = 10)
+		#self.pub_current_floor = rospy.Publisher(current_floor_topic,UInt8,queue_size = 10)
+		#self.pub_target_floor = rospy.Publisher(target_floor_topic,UInt8, queue_size = 10)
 		self.pub_battery_status = rospy.Publisher(battery_status_topic,BatteryState,queue_size = 10)
 		"""Node Configuration"""
 		self.rate = rospy.Rate(rate)
@@ -37,14 +37,14 @@ class RoombotBehavior(object):
 		self.main()
 
 	"""Subscribers Topics Callbacks"""
-	def callback_press_button_cmplt(self,msg):
-		self. current_floor = self.target_floor
+	"""def callback_press_button_cmplt(self,msg):
+		self. current_floor = self.target_floor"""
 
 
 	def callback_new_mission(self,msg):
 		self.target_floor = msg.data
 		request = RequestMsg()
-		self.pub_target_floor.publish(self.target_floor)
+		#self.pub_target_floor.publish(self.target_floor)
 		self.request_id += 1
 		request.request_id
 		request.type = request.DELIVERY
@@ -62,18 +62,18 @@ class RoombotBehavior(object):
 		for product in products:
 			request.request.append(product+";"+str(random.randint(1,10)))
 		print(request)
-		"""if self.svr_request(request):
+		if self.svr_request(request):
 			print("OK")
 		else:
-			print("error")"""
+			print("error")
 
 	def main(self):
 		battery = BatteryState()
 		battery.power_supply_health = battery.POWER_SUPPLY_HEALTH_GOOD
 		print("running")
 		while not rospy.is_shutdown():
-			self.pub_current_floor.publish(self.current_floor)
-			self.pub_target_floor.publish(self.target_floor)
+			#self.pub_current_floor.publish(self.current_floor)
+			#self.pub_target_floor.publish(self.target_floor)
 			self.pub_battery_status.publish(battery)
 			self.rate.sleep()
 

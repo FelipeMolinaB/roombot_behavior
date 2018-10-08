@@ -29,18 +29,21 @@ class PoseLogger(object):
 	"""Other Methods"""
 	def main(self):
 		while not rospy.is_shutdown():
-			pose_name = raw_input("Current Pose Name (\'e\' to exit): ")
-			if pose_name.lower() != "e":
+			try:
+				input = raw_input("Current Pose Name, floor (\'e\' to exit): ")
+				pose_name,floor = input.split(',')
 				self.get_pose = True
 				while(self.get_pose): pass
+				self.current_pose.pose.position.z = float(floor)
 				self.pose = {"pose_name":pose_name,"pose":self.current_pose}
 				response = self.save_pose(self.pose["pose_name"],self.pose["pose"])
 				if response.error:
 					rospy.logerr(response.description)
 				else:
 					rospy.loginfo("Pose \"%s\" has been saved",pose_name)
-			else:
+			except:
 				break
+		exit()
 
 if __name__ == '__main__':
 	rospy.init_node("pose_logger", anonymous = True)

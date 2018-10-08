@@ -71,24 +71,21 @@ class BehaviorActions(object):
         self.sub_goal_status = rospy.Subscriber(goal_status_topic,GoalStatusArray,self.callback_goal_status)
         """Publishers"""
         #Robotic Arm Module
-        self.pub_target_button = rospy.Publisher(target_button_topic,UInt8,queue_size = 10)
+        self.pub_target_button = rospy.Publisher(target_button_topic,Int8,queue_size = 10)
         #Navigation Module
         self.pub_goal_pose = rospy.Publisher(goal_pose_topic,PoseStamped, queue_size = 10)
         #FeedbackTrigger Module
         self.pub_behevior_substatus = rospy.Publisher(behevior_substatus_topic,UInt8, queue_size = 10)
         self.pub_target_floor = rospy.Publisher(target_floor_topic,UInt8, queue_size = 10)
         """Inicializations"""
-        self.current_floor = None
+        self.current_floor = 3
         self.goal_status = self.ACTIVE #0 WARNING: Changed for trials
         self.low_battery = False
         self.orientation_adj = False
         self.press_button_cmplt = False
         self.prev_goal_pose = None
         self.prev_substatus = None
-        # WARNING: Changed for trials
-        target_floor_topic = rospy.get_param("~target_floor_topic","/target_floor")
-        self.sub_target_floor = rospy.Subscriber(target_floor_topic,UInt8,self.callback_target_floor)
-        self.target_floor = None#self.target_floor = UInt8() # WARNING: Changed for trials
+        self.target_floor = UInt8()
         self.toggle = True
         self.stop = False
         self.substatus = 0
@@ -111,28 +108,29 @@ class BehaviorActions(object):
         """Run Node's Main"""
         rospy.spin()
 
-    def callback_target_floor(self,msg):
-		self.target_floor = msg.data
-
     """Actions Callbacks"""
     def callback_satate1(self,goal):
-        self.go_to("delivery_room")
+        self.go_to("delivery_room",None)
+        print("goal sended")
         self.stop = False
         result = State1Result()
         while(not rospy.is_shutdown()):
             if self.low_battery:
+                print("break 1")
                 result.end = False
                 self.act_state1.set_aborted(result,"State 1 aborted due to low battery")
                 return
 
             if self.act_state1.is_preempt_requested():
+                print("break 2")
                 result.end = True
                 self.stop = True
                 self.act_state1.set_succeeded(result,"State 1 succeed ")
                 return
 
             if self.substatus != 0:
-                self.go_to_other_floor(self.target_floor)
+                print("break 3",self.target_floor.data)
+                self.go_to_other_floor(self.target_floor.data)
             else:
                 if self.goal_status == self.ABORTED:
                     #Run a method when the goal is not reachable
@@ -142,7 +140,7 @@ class BehaviorActions(object):
                     rospy.sleep(0.1)
 
     def callback_satate2(self,goal):
-        self.go_to("delivery_room")
+        self.go_to("delivery_room",None)
         self.stop = False
         result = State2Result()
         while(not rospy.is_shutdown()):
@@ -153,7 +151,7 @@ class BehaviorActions(object):
                 return
 
             if self.substatus != 0:
-                self.go_to_other_floor(self.target_floor)
+                self.go_to_other_floor(self.target_floor.data)
             else:
                 if self.goal_status == self.SUCCEED:
                     result.end = True
@@ -173,7 +171,6 @@ class BehaviorActions(object):
         for request in goal.requests:
             if request.type == request.DELIVERY:
                 posible_requests += 1
-
         counter = 0
         for request in goal.requests:
             if request.type == request.DELIVERY:
@@ -192,20 +189,26 @@ class BehaviorActions(object):
         self.act_state3.set_succeeded(result)
 
     def callback_satate4(self,goal):
-        self.go_to(goal.room)
+        #WARNING the action4 declaration was change for trial, please delete floor variable when
+        self.go_to(goal.room,goal.floor)
         result = State4Result()
+        rospy.sleep(0.1)
         while(not rospy.is_shutdown()):
             if self.substatus != 0:
-                self.go_to_other_floor(self.target_floor)
+                self.go_to_other_floor(self.target_floor.data)
             else:
                 if self.goal_status == self.ABORTED:
                     #Run a method when the goal is not reachable
                     rospy.loginfo("Goal pose can't be reached")
                     result.end = False
                     self.act_state4.set_aborted(result)
+                    return
+
                 if self.goal_status == self.SUCCEED:
+                    print("adf")
                     result.end = True
                     self.act_state4.set_succeeded(result)
+                    return
                 else:
                     rospy.sleep(0.1)
 
@@ -217,13 +220,13 @@ class BehaviorActions(object):
         self.act_state5.set_succeeded(result)
 
     def callback_satate7(self,goal):
-        self.go_to("charge_base")
+        self.go_to("charge_base",None)
         charging = False
         result = State7Result()
         while(not(rospy.is_shutdown()) and self.low_battery):
             if not charging:
                 if self.substatus != 0:
-                    self.go_to_other_floor(self.target_floor)
+                    self.go_to_other_floor(self.target_floor.data)
                 else:
                     if self.goal_status == self.SUCCEED:
                         charging = True
@@ -231,6 +234,7 @@ class BehaviorActions(object):
                     elif self.goal_status == self.ABORTED:
                         result.end = False
                         self.act_state7.set_aborted(result,"Goal pose can't be reached")
+                        return
             rospy.sleep(0.1)
         result.end = True
         self.act_state7.set_succeeded(result,"Roombot has full battery")
@@ -250,26 +254,36 @@ class BehaviorActions(object):
             last_goal_status = msg.status_list[-1]
             self.goal_status = last_goal_status.status
 
-    def callback_orientation_adj(self,msg): self.orientation_adj = True
+    def callback_orientation_adj(self,msg):
+        self.orientation_adj = True
 
-    def callback_press_button_cmplt(self,msg): self.press_button_cmplt = True
+    def callback_press_button_cmplt(self,msg):
+        self.press_button_cmplt = True
 
     """Publishers Topics Methods"""
 
     """Other Methods"""
-    def go_to(self,pose_name):
-        ## WARNING: Changed for trials
+    def go_to(self,pose_name,request_floor): ## WARNING: request_floor was added for trials
         goal_pose = self.get_pose(pose_name).pose
-        #target_floor = goal_pose.pose.pose.position.z
-        #self.pub_target_floor.publish(target_floor)
-        print(self.current_floor,self.target_floor)
-        if self.current_floor != self.target_floor: #target_floor:
+        print(goal_pose)
+        ## WARNING: Changed for trials
+        if int(goal_pose.pose.position.z) == -1.0:
+            self.target_floor.data = self.current_floor
+        elif int(goal_pose.pose.position.z) == -2.0:
+            self.target_floor.data = request_floor
+        else:##
+            self.target_floor.data = float(goal_pose.pose.position.z)
+        print(self.target_floor.data)
+        self.pub_target_floor.publish(self.target_floor)
+        print(self.current_floor,self.target_floor.data,self.current_floor != int(self.target_floor.data))
+
+        goal_pose.pose.position.z = 0
+        if self.current_floor != int(self.target_floor.data):
             self.prev_goal_pose = goal_pose
             if self.substatus == 0:
                 self.substatus = 1
         else:
             self.substatus = 0
-            goal_pose.pose.position.z = 0
             self.pub_goal_pose.publish(goal_pose)
 
     def wait(self,use_aborted_func=False,aborted_func=None,*func_args):
@@ -304,14 +318,18 @@ class BehaviorActions(object):
         else:
             rospy.loginfo("Checking elevator 2 availability")
             goal_pub.publish(elevators[1])
+        rospy.sleep(0.1)
 
     def orientation_adjustment(self,button):
         rospy.loginfo("Performing the orientation adjustment")
+        rospy.sleep(0.1)
+        while self.goal_status != self.SUCCEED:
+            rospy.sleep(0.1)
         self.pub_target_button.publish(button)
         self.orientation_adj = False
         self.press_button_cmplt = False
         while(not(rospy.is_shutdown()) and not self.press_button_cmplt):
-            if (self.orientation_adj and self.goal_status == self.SUCCEED):
+            if (self.orientation_adj):
                 self.orientation_adj = False
                 self.pub_target_button.publish(button)
             rospy.sleep(0.1)
@@ -319,14 +337,15 @@ class BehaviorActions(object):
 
     def go_to_other_floor(self,target_floor):#  redefine this method using a while and substatus method
         self.pub_behevior_substatus.publish(self.substatus)
-        self.prev_substatus = self.substatus
         if self.substatus == 1:
             #going to the outer panel
             rospy.loginfo("Going to the elevator's outer panel in floor %d, target floor: %d",self.current_floor,target_floor)
-            goal_pose = self.get_pose('e'+str(self.current_floor)+"opanel").pose
+            goal_pose = self.get_pose('e3opanel').pose #str(self.current_floor)+"opanel").pose # WARNING:changed for trials
             self.pub_goal_pose.publish(goal_pose)
+            rospy.sleep(0.1)
             if self.wait():
                 if self.goal_status == self.SUCCEED:
+                    self.prev_substatus = 1
                     self.substatus = 2
                 elif self.goal_status == self.ABORTED:
                     rospy.loginfo("Elevator's outer panel in floor %d wasn't reached",self.current_floor)
@@ -335,58 +354,73 @@ class BehaviorActions(object):
         elif self.substatus == 2:
             rospy.loginfo("Elevator's outer panel in floor %d was reached",self.current_floor)
             #Do orientation adjustment
-            button = UInt8()
+            button = Int8()
             if self.prev_substatus == 1:
                 if self.current_floor>target_floor:
                     button_name = "down"
-                    button.data = self.get_button_code(button_name)
+                    button.data = self.get_button_code(button_name).button
                 else:
                     button_name = "up"
-                    button.data = self.get_button_code(button_name)
+                    button.data = self.get_button_code(button_name).button
                 rospy.loginfo("Waiting the elevator")
+                self.prev_substatus = 2
                 self.substatus = 4 #3 WARNING: Changed for trials
-            elif self.prev_substatus == 2:
-                button_name = str(target_floor)
-                button.data = self.get_button_code(target_floor)
+            elif self.prev_substatus == 4:
+                button_name = str(int(target_floor))
+                button.data = self.get_button_code(button_name).button
                 rospy.loginfo("Waiting to be in the correct floor")
+                self.prev_substatus = 2
                 self.substatus = 5
-            self.orientation_adjustment(button,button_name)
+                rospy.sleep(0.1)
+            self.orientation_adjustment(button)
         elif self.substatus == 3:
-            #Going inside of the elevator
+            rospy.loginfo("Going inside of the elevator")
+            #
             elevator1 = self.get_pose("elevator1").pose
-            elevetor2 = self.get_pose("elevator2").pose
+            elevetor2 = self.get_pose("elevator1").pose #2").pose WARNING: changed for trials
             self.pub_goal_pose.publish(elevator1)
             self.toggle = True
             if self.wait(True,self.go_inside_elevator,elevator1,elevetor2):
                 if self.toggle: rospy.loginfo("Taking the elevator No. 1")
                 else: rospy.loginfo("Taking the elevator No. 2")
+                self.prev_substatus = 3
                 self.substatus = 4
         elif self.substatus == 4:
+            rospy.loginfo("Going to the elevator's inner panel ")
             #Going to the inner panel
-            if self.target_floor%2 == 0:
-                goal_pose = self.get_pose('e'+self.current_floor+"ipanel_even").pose
+            if self.target_floor.data%2 == 0:
+                goal_pose = self.get_pose('e3ipanel_even').pose#+self.current_floor+"ipanel_even").pose # WARNING: Chancged for trial
             else:
-                goal_pose = self.get_pose('e'+self.current_floor+"ipanel_odd").pose
+                goal_pose = self.get_pose('e3ipanel_odd').pose#+self.current_floor+"ipanel_odd").pose # WARNING: Chancged for trial
             self.pub_goal_pose.publish(goal_pose)
+            rospy.sleep(0.1)
             if self.wait():
                 if self.goal_status == self.SUCCEED:
                     rospy.loginfo("Elevator's inner panel was reached")
+                    self.prev_substatus = 4
                     self.substatus = 2
                 elif self.goal_status == self.ABORTED:
                     rospy.loginfo("Elevator's inner panel wasn't reached")
                     #Define why the outer panel is unreachable
         #Waiting to be in the correct floor
         elif self.substatus == 5:
+            rospy.loginfo("Waiting to be in the correct floor")
             while(not rospy.is_shutdown()):
                 if self.current_floor == target_floor: break
                 rospy.sleep(0.05)
-            goal_pose = self.get_pose('e'+self.current_floor+"opanel")
+            goal_pose = self.get_pose('e3opanel').pose #str(self.current_floor)+"opanel").pose # WARNING:changed for trials
+            rospy.sleep(0.1)
             if self.wait():
+                self.prev_substatus = 5
                 self.substatus = 6
             else:
+                self.prev_substatus = 5
                 self.substatus = 4
         elif self.substatus == 6:
+            rospy.loginfo("Going to the goal")
             self.pub_goal_pose.publish(self.prev_goal_pose)
+            rospy.sleep(0.1)
+            self.prev_substatus = 6
             self.substatus = 0
         else:
             rospy.logerr("Substautus error: substatus %d is invalid",self.substatus)

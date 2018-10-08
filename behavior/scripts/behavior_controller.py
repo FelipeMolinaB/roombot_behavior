@@ -189,10 +189,14 @@ class BehaviorController(object):
 
     def get_next_achivable(self,requests_list):
         request_ind = -1
+        r = None
+        print("requests_list",requests_list,list(enumerate(requests_list)))
         for i,r in enumerate(requests_list):
+            print(i,r)
             if r["achivable"]:
                 request_ind = i
                 break
+
         return request_ind,r
 
     def main(self):
@@ -209,7 +213,7 @@ class BehaviorController(object):
                             if request["info"].type == request["info"].DELIVERY:
                                 any_deliveryr = True
                                 break
-                            if any_deliveryr: break
+                        if any_deliveryr: break
                     if any_deliveryr:
                         self.status = 2
                     else: #Only pick_up requests
@@ -241,14 +245,16 @@ class BehaviorController(object):
                 self.status = 4
             elif self.status == 4:
                 start_floor = self.current_floor
+                skip = False
                 if start_floor == self.floors[-1]:
                     request_ind,r = self.get_next_achivable(self.requests[start_floor])
+                    print(request_ind)
                     if request_ind != -1:
                         skip = True
                     else:
-                        skip = False
                         start_floor = self.floors[0]
                 if not skip:
+                    print(start_floor,self.floors[-1]+1)
                     for floor in range(start_floor,self.floors[-1]+1):
                         requests_list = self.requests[floor]
                         request_ind,r = self.get_next_achivable(requests_list)
@@ -259,6 +265,7 @@ class BehaviorController(object):
                 self.set_status(r["info"].request_id,status=self.ACTIVE)
                 goal_room = State4Goal()
                 goal_room.room = r["info"].room
+                goal_room.floor = r["info"].floor
                 self.act_state4.send_goal(goal_room)
                 self.act_state4.wait_for_result()
                 self.status = 5

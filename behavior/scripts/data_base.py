@@ -3,7 +3,7 @@ import rospy
 import pandas as pd
 from rospkg import RosPack
 from geometry_msgs.msg import PoseStamped
-from std_msgs.msg import String,Bool,UInt8
+from std_msgs.msg import String,Bool
 from behavior.srv import SavePose,GetPose,GetButton
 from behavior.srv import SavePoseResponse,GetButtonResponse,GetPoseResponse
 
@@ -27,7 +27,9 @@ class DataBase(object):
 			rospy.loginfo("Data Bases in read mode")
 		"""Node Configuration"""
 		self.poses_db = pd.read_csv(self.poses_path,index_col = False)
+		print(self.poses_db)
 		self.buttons_db = pd.read_csv(self.buttons_path,dtype={"Nombres":str,"Boton":str},index_col = False)
+		print(self.buttons_db)
 		rospy.spin()
 
 	"""Services Callbacks"""
@@ -57,20 +59,20 @@ class DataBase(object):
 
 	def callback_pose_request(self,msg):
 		pose = PoseStamped()
-		try:
-			pose_index = list(self.poses_db.Nombre).index(msg.pose_name)
-			raw_pose = list(self.poses_db.iloc[[pose_index]].values[0])[1:8]
-			pose.header.frame_id = self.pose_frame_id
-			pose.pose.position.x = raw_pose[0]
-			pose.pose.position.y = raw_pose[1]
-			pose.pose.position.z = raw_pose[2]
-			pose.pose.orientation.x = raw_pose[3]
-			pose.pose.orientation.y = raw_pose[4]
-			pose.pose.orientation.z = raw_pose[5]
-			pose.pose.orientation.w = raw_pose[6]
-			rospy.loginfo("The %s pose was sent",msg.pose_name)
-		except:
-			rospy.logerr("The %s pose does not exist",msg.pose_name)
+		#try:
+		pose_index = list(self.poses_db.Nombre).index(msg.pose_name)
+		raw_pose = list(self.poses_db.iloc[[pose_index]].values[0])[1:8]
+		pose.header.frame_id = self.pose_frame_id
+		pose.pose.position.x = raw_pose[0]
+		pose.pose.position.y = raw_pose[1]
+		pose.pose.position.z = raw_pose[2]
+		pose.pose.orientation.x = raw_pose[3]
+		pose.pose.orientation.y = raw_pose[4]
+		pose.pose.orientation.z = raw_pose[5]
+		pose.pose.orientation.w = raw_pose[6]
+		rospy.loginfo("The %s pose was sent",msg.pose_name)
+		"""except:
+			rospy.logerr("The %s pose does not exist",msg.pose_name)"""
 		return GetPoseResponse(pose)
 
 	def callback_button_request(self,msg):

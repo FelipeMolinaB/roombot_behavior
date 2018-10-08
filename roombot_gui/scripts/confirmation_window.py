@@ -93,19 +93,20 @@ class UiConfirmation(QtCore.QObject):
         self.confirm.setText(_translate("MainWindow", "OK"))
 
     def handleItemClicked(self,item):
-        if self.source == 0:
-            self.all_check[item.row()] = item.checkState()==QtCore.Qt.Checked
-            if self.all_check == [True]*self.request_info.rowCount():
-                self.confirm.setEnabled(True)
+            if self.source == 0 and item.column() == 0:
+                self.all_check[item.row()] = item.checkState()==QtCore.Qt.Checked
+                if self.all_check == [True]*self.request_info.rowCount():
+                    self.confirm.setEnabled(True)
+                else:
+                    self.confirm.setEnabled(False)
             else:
-                self.confirm.setEnabled(False)
-        else:
-            self.confirm.setEnabled(True)
+                self.confirm.setEnabled(True)
 
     def confirmation_done(self):
         self.confirmation = True
 
     def callback_confirm_load(self,msg):
+        print("Load")
         self.source = 0
         self.request.emit((0,msg.request))
         while not self.confirmation:
@@ -120,6 +121,7 @@ class UiConfirmation(QtCore.QObject):
         return ConfirmLoadResponse(True)
 
     def callback_guest_confirm(self,msg):
+        print("Guest")
         self.source = 1
         self.request.emit((1,msg.request))
         while not self.confirmation:
@@ -168,6 +170,7 @@ class UiConfirmation(QtCore.QObject):
             item =  QtWidgets.QTableWidgetItem(q)
             item.setTextAlignment(QtCore.Qt.AlignCenter)
             self.request_info.setItem(i,initial_col+1,item)
+        print("table setted up")
         self.MainWindow.show()
 
 if __name__ == "__main__":
