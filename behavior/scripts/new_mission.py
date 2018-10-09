@@ -31,7 +31,7 @@ class RoombotBehavior(object):
 		self.current_floor = rospy.get_param("~current_floor", 3)
 		self.target_floor = 3
 		self.request_id = 0
-		self.rooms = ["paulo","felipe","daniel","cristian","juancho","david","julio","john"]
+		self.rooms = ["paulo","daniel","cristian","juan","david","julio","john"]
 		self.products = ["Agua","Gaseosa","Toalla","Pan","Almuerzo","Desayuno","Cena","Cigarrillos","M&Ms","Papas"]
 		"""Run Node's Main"""
 		self.main()
@@ -46,10 +46,10 @@ class RoombotBehavior(object):
 		request = RequestMsg()
 		#self.pub_target_floor.publish(self.target_floor)
 		self.request_id += 1
-		request.request_id
+		request.request_id = self.request_id
 		request.type = request.DELIVERY
 		request.floor = msg.data
-		request.room = "felipe"#random.choice(self.rooms)
+		request.room = random.choice(self.rooms)#"felipe"
 		items = random.randint(1,6)
 		request.request = []
 		products = []
@@ -70,7 +70,6 @@ class RoombotBehavior(object):
 	def main(self):
 		battery = BatteryState()
 		battery.power_supply_health = battery.POWER_SUPPLY_HEALTH_GOOD
-		print("running")
 		while not rospy.is_shutdown():
 			#self.pub_current_floor.publish(self.current_floor)
 			#self.pub_target_floor.publish(self.target_floor)

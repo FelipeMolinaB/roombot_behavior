@@ -111,25 +111,21 @@ class BehaviorActions(object):
     """Actions Callbacks"""
     def callback_satate1(self,goal):
         self.go_to("delivery_room",None)
-        print("goal sended")
         self.stop = False
         result = State1Result()
         while(not rospy.is_shutdown()):
             if self.low_battery:
-                print("break 1")
                 result.end = False
                 self.act_state1.set_aborted(result,"State 1 aborted due to low battery")
                 return
 
             if self.act_state1.is_preempt_requested():
-                print("break 2")
                 result.end = True
                 self.stop = True
                 self.act_state1.set_succeeded(result,"State 1 succeed ")
                 return
 
             if self.substatus != 0:
-                print("break 3",self.target_floor.data)
                 self.go_to_other_floor(self.target_floor.data)
             else:
                 if self.goal_status == self.ABORTED:
@@ -176,9 +172,7 @@ class BehaviorActions(object):
             if request.type == request.DELIVERY:
                 counter += 1
                 was_the_last = counter == posible_requests
-                print("Before")
                 confirmation = self.confirm_load(request.request,was_the_last).confirmation
-                print("Confirmation",confirmation)
                 if confirmation:
                     ids.append(request.request_id)
                 else:
@@ -205,7 +199,6 @@ class BehaviorActions(object):
                     return
 
                 if self.goal_status == self.SUCCEED:
-                    print("adf")
                     result.end = True
                     self.act_state4.set_succeeded(result)
                     return
@@ -213,7 +206,6 @@ class BehaviorActions(object):
                     rospy.sleep(0.1)
 
     def callback_satate5(self,goal):
-        print(goal)
         self.guest_confirm(goal.request)
         result = State5Result()
         result.id = goal.request_id
@@ -265,7 +257,6 @@ class BehaviorActions(object):
     """Other Methods"""
     def go_to(self,pose_name,request_floor): ## WARNING: request_floor was added for trials
         goal_pose = self.get_pose(pose_name).pose
-        print(goal_pose)
         ## WARNING: Changed for trials
         if int(goal_pose.pose.position.z) == -1.0:
             self.target_floor.data = self.current_floor
@@ -273,10 +264,8 @@ class BehaviorActions(object):
             self.target_floor.data = request_floor
         else:##
             self.target_floor.data = float(goal_pose.pose.position.z)
-        print(self.target_floor.data)
         self.pub_target_floor.publish(self.target_floor)
-        print(self.current_floor,self.target_floor.data,self.current_floor != int(self.target_floor.data))
-
+        
         goal_pose.pose.position.z = 0
         if self.current_floor != int(self.target_floor.data):
             self.prev_goal_pose = goal_pose
@@ -325,12 +314,14 @@ class BehaviorActions(object):
         rospy.sleep(0.1)
         while self.goal_status != self.SUCCEED:
             rospy.sleep(0.1)
+        rospy.sleep(0.5)
         self.pub_target_button.publish(button)
         self.orientation_adj = False
         self.press_button_cmplt = False
         while(not(rospy.is_shutdown()) and not self.press_button_cmplt):
             if (self.orientation_adj):
                 self.orientation_adj = False
+                rospy.sleep(0.5)
                 self.pub_target_button.publish(button)
             rospy.sleep(0.1)
         rospy.loginfo("Elevator's inner panel was reached")

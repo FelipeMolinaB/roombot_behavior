@@ -58,7 +58,7 @@ class UiConfirmation(QtCore.QObject):
         self.room = QtWidgets.QLabel(self.groupBox)
         self.room.setGeometry(QtCore.QRect(0,container[1]*0.33,container[0]*0.94,container[1]*0.34))
         self.room.setFrameShape(QtWidgets.QFrame.Box)
-        self.room.setText("Algo")
+        self.room.setText("")
         self.room.setAlignment(QtCore.Qt.AlignCenter)
         self.room.setObjectName("room")
         self.verticalLayout.addWidget(self.groupBox)

@@ -71,6 +71,7 @@ class BehaviorController(object):
         self.substatus = 0
         self.low_battery = False
         self.current_floor = None
+        self.new_request = False
         self.requests = dict(zip(self.floors,[[]]*len(self.floors)))
         self.requests_status = []
         """Run the node's main"""
@@ -80,6 +81,7 @@ class BehaviorController(object):
     def callback_incoming_request(self,msg):
         rospy.loginfo("A Request was recieved")
         if True: ### WARNING: Here is missing the conditions that generates a False response
+            self.new_request = True
             msg = msg.request
             if msg.type == msg.DELIVERY:
                 achivable = False
@@ -190,12 +192,11 @@ class BehaviorController(object):
     def get_next_achivable(self,requests_list):
         request_ind = -1
         r = None
-        print("requests_list",requests_list,list(enumerate(requests_list)))
-        for i,r in enumerate(requests_list):
-            print(i,r)
-            if r["achivable"]:
-                request_ind = i
-                break
+        if len(requests_list) != 0:
+            for i,r in enumerate(requests_list):
+                if r["achivable"]:
+                    request_ind = i
+                    break
 
         return request_ind,r
 
@@ -226,42 +227,43 @@ class BehaviorController(object):
                 self.status = 3
             elif self.status == 3:
                 goal = State3Goal()
-                """goal.requests = []
-                request_templete = Request()
-                for requests_list in self.requests.values():
-                    for request in  requests_list:
-                        print(type(request["info"]))
-                        request_templete.request_id = request["info"].request_id
-                        request_templete.type = request["info"].type
-                        request_templete.request = request["info"].request
-                        goal.requests.append(request_templete)"""## WARNING:
-                goal.requests = [request["info"] for requests_list in self.requests.values() for request in  requests_list if request["info"].type == request["info"].DELIVERY]
-                print(goal.requests)
-                self.act_state3.send_goal(goal)
-                self.act_state3.wait_for_result()
-                ids = self.act_state3.get_result()
-                for id in ids.ids:
-                    self.set_achivable(id)
+                while True:
+                    goal.requests = [request["info"] for requests_list in self.requests.values() for request in  requests_list if (request["info"].type == request["info"].DELIVERY and not(request["achivable"]))]
+                    self.act_state3.send_goal(goal)
+                    self.act_state3.wait_for_result()
+                    ids = self.act_state3.get_result()
+                    for id in ids.ids:
+                        self.set_achivable(id)
+                    if not self.new_request:
+                        break
+                    else:
+                        self.new_request = False
                 self.status = 4
             elif self.status == 4:
                 start_floor = self.current_floor
                 skip = False
                 if start_floor == self.floors[-1]:
                     request_ind,r = self.get_next_achivable(self.requests[start_floor])
-                    print(request_ind)
                     if request_ind != -1:
                         skip = True
                     else:
                         start_floor = self.floors[0]
                 if not skip:
-                    print(start_floor,self.floors[-1]+1)
                     for floor in range(start_floor,self.floors[-1]+1):
                         requests_list = self.requests[floor]
                         request_ind,r = self.get_next_achivable(requests_list)
                         if request_ind != -1:
                             break
+                    if r == None:
+                        for floor in range(self.floors[0],start_floor):
+                            requests_list = self.requests[floor]
+                            request_ind,r = self.get_next_achivable(requests_list)
+                            if request_ind != -1:
+                                break
+
                 else:
                     floor = start_floor
+
                 self.set_status(r["info"].request_id,status=self.ACTIVE)
                 goal_room = State4Goal()
                 goal_room.room = r["info"].room
@@ -276,7 +278,6 @@ class BehaviorController(object):
                 self.act_state5.send_goal(goal)
                 self.act_state5.wait_for_result()
                 id_complete = self.act_state5.get_result()
-                print(r)
                 self.set_status(id_complete,status=self.SUCCEED)
                 self.requests[floor].pop(request_ind)
                 self.status = 6
